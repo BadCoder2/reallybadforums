@@ -8,8 +8,7 @@ def readFile(fileName):
     with open("pages/" + fileName, "r") as f:
         return f.read()
 def fixInput(inpt):
-    return inpt.replace(r'\n', r'<br>')
-    #.replace('#', r'\#')
+    return inpt.replace(r'\n', r'<br>').replace(r'\b', r'<b>').replace(r'\e', r'</b>')
 
 @app.route("/")
 def hello_world():
@@ -23,6 +22,9 @@ def page_not_found(error):
 @app.route("/create")
 def createPage():
     return readFile("create.html")
+@app.route("/formatting")
+def formatg():
+    return readFile("formatguide.html")
 
 @app.route("/hoffmanmemestuff")
 def SQuest1():
