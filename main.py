@@ -7,7 +7,9 @@ app = Flask(__name__)
 def readFile(fileName):
     with open("pages/" + fileName, "r") as f:
         return f.read()
-
+def fixInput(inpt):
+    return inpt.replace(r'\n', r'<br>')
+    #.replace('#', r'\#')
 
 @app.route("/")
 def hello_world():
@@ -35,11 +37,13 @@ def SQuest3():
 
 @app.route("/make_forum_post", methods = ["POST"])
 def make_post():
+    inpt = str(escape(request.form["thing"]))
+    if len(inpt) > 5000:
+        return "INPUT TOO LARGE- IGNORED"
     with open("takenStuff.json", 'r') as fil:
         contents = fil.read()
         takenPagesJSON = json.loads(contents)
         takenPages = takenPagesJSON["takenPages"]
-    inpt = escape(request.form["thing"])
     curTime = str(time.time())
     random.seed(curTime)
     while True:
@@ -53,9 +57,10 @@ def make_post():
     postLocate = ("pages/posts/" + num + ".html")
     with open("takenStuff.json", 'w') as fil:
         json.dump(takenPagesJSON, fil, sort_keys=True, indent=4)
+    newInpt = fixInput(inpt)
     with open(postLocate, "w") as post:
-        post.write(inpt)
-    output = str(inpt) + "<br><b>ID: " + num + "</b>"
+        post.write("<body>"+newInpt+"</body>")
+    output = str(newInpt) + "<br><b>ID: " + num + "</b>"
     return output
 
 @app.route("/view_post", methods = ["POST"])
