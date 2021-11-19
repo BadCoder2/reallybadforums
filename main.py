@@ -38,7 +38,7 @@ def SQuest3():
 @app.route("/make_forum_post", methods = ["POST"])
 def make_post():
     inpt = str(escape(request.form["thing"]))
-    if len(inpt) > 5000:
+    if len(inpt) > 3000:
         return "INPUT TOO LARGE- IGNORED"
     with open("takenStuff.json", 'r') as fil:
         contents = fil.read()
