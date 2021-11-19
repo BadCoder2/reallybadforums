@@ -1,0 +1,37 @@
+<!doctype html>
+<head>
+    <style>
+        {
+
+        }
+    </style>
+</head>
+<body>
+<h1>So... Python is cool.</h1>
+<h2>Especially with Flask.</h2>
+<h3>but what if... it wasn't?</h3>
+<p>Introducing: Super Bad Forums</p>
+<p>There are no accounts. There isn't any security, or organization (unless you make a forum post of that,) or anything. Just create a post and share the ID with people you want to see it. That's it.</p>
+<h2>View A Form Post</h2>
+<form method="POST" action = "/view_post">
+    <div class = "form-group">
+        <input type="text" name = "thing2" id="vew"></input>
+    </div>
+    <input class="btn btn-primary" type="submit" value="View A Post">
+</form>
+<p>Put random characters in the next text box for the seed of the randomness, and you will be directed to a random post. (Leave blank for auto-generated seed)</p>
+<form method="POST" action = "/view_rand_post">
+    <div class = "form-group">
+        <input type="text" name = "seed"</input>
+    </div>
+    <input class="btn btn-primary" type="submit" value="View A Random Post">
+</form>
+<h2>Create a Forum Post</h2>
+<p>(Plaintext only.) Note: newlines are banned. There is no such thing as a newline.</p>
+<form method="POST" action = "/make_forum_post">
+    <div class = "form-group">
+        <textarea type="text" name = "thing" id="mke"></textarea>
+    </div>
+    <input class="btn btn-primary" type="submit" value="Post Forum Thing">
+</form>
+</body>
