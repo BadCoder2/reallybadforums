@@ -1,7 +1,6 @@
 from flask import Flask, request, redirect
 from markupsafe import escape
 import random, time, json, os
-DELETE THIS LINE
 
 app = Flask(__name__)
 
