@@ -1,8 +1,11 @@
 from flask import Flask, request, redirect
 from markupsafe import escape
 import random, time, json, os
+#from https://github.com/KnugiHK/flask-hcaptcha
+from flask_hcaptcha import hCaptcha
 
 app = Flask(__name__)
+hcaptcha = hCaptcha(app)
 
 def readFile(fileName):
     with open("pages/" + fileName, "r") as f:
@@ -39,6 +42,8 @@ def SQuest3():
 
 @app.route("/make_forum_post", methods = ["POST"])
 def make_post():
+    if not hcaptcha.verify():
+        return "Verification Failure"
     inpt = str(escape(request.form["thing"]))
     if len(inpt) > 3000:
         return "INPUT TOO LARGE- IGNORED"
