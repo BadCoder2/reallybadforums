@@ -1,6 +1,6 @@
 from flask import Flask, request, redirect
 from markupsafe import escape
-import random, time, json
+import random, time, json, os
 
 app = Flask(__name__)
 
@@ -92,3 +92,14 @@ def show_post(formID):
         return post
     except:
         return page_not_found("sussy baka")
+
+@app.route("/moderation")
+def moderate():
+    try:
+        modToken = request.cookies.get("MOD_TOKEN")
+    except:
+        return "NO MODERATION COOKIE FOUND"
+    if modToken != os.getenv("MOD_SECRET"):
+        with open("logs.txt", "a") as log:
+            log.write(time.strftime('%l:%M,%b %d')+" WARN: ATTEMPTED MOD ACCESS WITH COOKIE "+modToken)
+        return "INCORRECT COOKIE-LOGGED"
