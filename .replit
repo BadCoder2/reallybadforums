@@ -1,1 +1,1 @@
-run = "export FLASK_APP=main;flask run --host=0.0.0.0"
+run = "export FLASK_APP=main;export HCAPTCHA_SITE_KEY=;export HCAPTCHA_SECRET_KEY=;flask run --host=0.0.0.0"

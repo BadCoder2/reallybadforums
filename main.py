@@ -1,20 +1,29 @@
 from flask import Flask, request, redirect
 from markupsafe import escape
-import random, time, json, os
-#from https://github.com/KnugiHK/flask-hcaptcha
-from flask_hcaptcha import hCaptcha
+import random, time, json, os, requests
 
 app = Flask(__name__)
-hcaptcha = hCaptcha(app)
 
 def readFile(fileName):
     with open("pages/" + fileName, "r") as f:
         return f.read()
 def fixInput(inpt):
     return inpt.replace(r'\n', r'<br>').replace(r'\b', r'<b>').replace(r'\e', r'</b>')
+def checkCaptcha(res):
+    url = 'https://hcaptcha.com/siteverify'
+    sKey = os.getenv('SKEY')
+    obj = {'secret':sKey,'response':res}
+    x = requests.post(url,data=obj)
+    xJson = x.json()
+    result = str(xJson['success'])
+    if not result or result.lower() == "false":
+        print("FAILED - ERROR CODE:")
+        print(xJson["error-codes"])
+    print("CAPTCHA RESULT: " + result)
+    return result
 
 @app.route("/")
-def hello_world():
+def home():
     return readFile("home.html")
 
 @app.errorhandler(404)
@@ -42,8 +51,9 @@ def SQuest3():
 
 @app.route("/make_forum_post", methods = ["POST"])
 def make_post():
-    if not hcaptcha.verify():
-        return "Verification Failure"
+    cRslt = checkCaptcha(request.form['h-captcha-response'])
+    if not cRslt or str(cRslt).lower() == "false":
+        return "Invalid hCaptcha response returned <br>If this wasn't caused by you, it has been logged and will be addressed"
     inpt = str(escape(request.form["thing"]))
     if len(inpt) > 3000:
         return "INPUT TOO LARGE- IGNORED"

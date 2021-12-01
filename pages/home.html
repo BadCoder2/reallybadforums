@@ -1,10 +1,6 @@
 <!doctype html>
 <head>
-    <style>
-        {
-
-        }
-    </style>
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 </head>
 <body>
 <h1>So... Python is cool.</h1>
@@ -32,7 +28,7 @@
     <div class = "form-group">
         <textarea type="text" name = "thing" id="mke"></textarea>
     </div>
-    {{ hcaptcha }}
+    <div class="h-captcha" data-sitekey="26cad5fd-f6d0-45a4-8d3b-09425d888045"></div>
     <input class="btn btn-primary" type="submit" value="Post Forum Thing">
 </form>
 </body>
