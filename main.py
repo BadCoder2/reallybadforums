@@ -1,6 +1,6 @@
 from flask import Flask, request, redirect
 from markupsafe import escape
-import random, time, json
+import random, time, json, os, requests
 
 app = Flask(__name__)
 
@@ -9,9 +9,21 @@ def readFile(fileName):
         return f.read()
 def fixInput(inpt):
     return inpt.replace(r'\n', r'<br>').replace(r'\b', r'<b>').replace(r'\e', r'</b>')
+def checkCaptcha(res):
+    url = 'https://hcaptcha.com/siteverify'
+    sKey = os.getenv('SKEY')
+    obj = {'secret':sKey,'response':res}
+    x = requests.post(url,data=obj)
+    xJson = x.json()
+    result = str(xJson['success'])
+    if not result or result.lower() == "false":
+        print("FAILED - ERROR CODE:")
+        print(xJson["error-codes"])
+    print("CAPTCHA RESULT: " + result)
+    return result
 
 @app.route("/")
-def hello_world():
+def home():
     return readFile("home.html")
 
 @app.errorhandler(404)
@@ -39,6 +51,9 @@ def SQuest3():
 
 @app.route("/make_forum_post", methods = ["POST"])
 def make_post():
+    cRslt = checkCaptcha(request.form['h-captcha-response'])
+    if not cRslt or str(cRslt).lower() == "false":
+        return "Invalid hCaptcha response returned <br>If this wasn't caused by you, it has been logged and will be addressed"
     inpt = str(escape(request.form["thing"]))
     if len(inpt) > 3000:
         return "INPUT TOO LARGE- IGNORED"
@@ -92,3 +107,14 @@ def show_post(formID):
         return post
     except:
         return page_not_found("sussy baka")
+
+@app.route("/moderation")
+def moderate():
+    try:
+        modToken = request.cookies.get("MOD_TOKEN")
+    except:
+        return "NO MODERATION COOKIE FOUND"
+    if modToken != os.getenv("MOD_SECRET"):
+        with open("logs.txt", "a") as log:
+            log.write(time.strftime('%l:%M,%b %d')+" WARN: ATTEMPTED MOD ACCESS WITH COOKIE "+modToken)
+        return "INCORRECT COOKIE-LOGGED"
