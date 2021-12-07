@@ -1,6 +1,9 @@
 from flask import Flask, request, redirect
 from markupsafe import escape
 import random, time, json, os, requests
+#yes yes i know, importing too much. i wonder if i could do something like:
+#from os import environ
+#possibly in the future
 
 app = Flask(__name__)
 
@@ -11,7 +14,7 @@ def fixInput(inpt):
     return inpt.replace(r'\n', r'<br>').replace(r'\b', r'<b>').replace(r'\e', r'</b>')
 def checkCaptcha(res):
     url = 'https://hcaptcha.com/siteverify'
-    sKey = os.getenv('SKEY')
+    sKey = os.environ['SKEY']
     obj = {'secret':sKey,'response':res}
     x = requests.post(url,data=obj)
     xJson = x.json()
@@ -113,8 +116,12 @@ def moderate():
     try:
         modToken = request.cookies.get("MOD_TOKEN")
     except:
-        return "NO MODERATION COOKIE FOUND"
-    if modToken != os.getenv("MOD_SECRET"):
-        with open("logs.txt", "a") as log:
-            log.write(time.strftime('%l:%M,%b %d')+" WARN: ATTEMPTED MOD ACCESS WITH COOKIE "+modToken)
-        return "INCORRECT COOKIE-LOGGED"
+        return readFile("404.html")
+    if modToken != os.environ['MOD_SECRET']:
+        print("\033[93mWARN: ATTEMPTED MOD ACCESS WITH COOKIE "+modToken+"\033[0m")
+        return "Incorrect cookie."
+    elif modToken == os.environ['MOD_SECRET']:
+        return readFile("mods.html")
+    else:
+        print("how did we get here")
+        return readFile("404.html")
