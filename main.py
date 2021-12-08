@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, send_from_directory
+from flask import Flask, request, redirect, make_response
 from markupsafe import escape
 import random, time, json, os, requests
 #yes yes i know, importing too much. i wonder if i could do something like:
@@ -96,15 +96,14 @@ def make_post():
     output = str(newInpt) + "<br><b>ID: " + num + "</b>"
     return output
 
-
 @app.route("/view_post", methods = ["POST"])
 def view_post():
     iD = request.form["thing2"]
     try:
-        int(iD)
+        brugh = int(iD)
     except:
         return "INVALID ID"
-    return redirect('forum/'+iD)
+    return redirect('forum/'+str(brugh))
 
 @app.route("/view_rand_post", methods = ["POST"])
 def view_rand_post():
@@ -125,13 +124,25 @@ def show_post(formID):
     except:
         return page_not_found("sussy baka")
 
+@app.route("/set-cookie")
+def setLCprep():
+    return readFile("setCookie.html")
+@app.route("/set-cookie-post", methods = ["POST"])
+def setLC():
+    cTSn = request.form["cookieName"]
+    cTSc = request.form["cookieContent"]
+    resp = make_response("Cookie Set")
+    resp.set_cookie(cTSn, cTSc)
+    return resp
 @app.route("/moderation")
 def moderate():
     try:
         modToken = request.cookies.get("MOD_TOKEN")
     except:
         return readFile("404.html")
-    if modToken != os.environ['MOD_SECRET']:
+    if modToken is None:
+        return readFile("404.html")
+    elif modToken != os.environ['MOD_SECRET']:
         print("\033[93mWARN: ATTEMPTED MOD ACCESS WITH COOKIE "+modToken+"\033[0m")
         return "Incorrect cookie."
     elif modToken == os.environ['MOD_SECRET']:
@@ -139,14 +150,17 @@ def moderate():
     else:
         print("how did we get here")
         return readFile("404.html")
-
 @app.route("/moderation/mod-del", methods = ["POST"])
-def deletePost(delID):
-    #this takes a LOT of the code from make_post(), so don't forget to keep the code pieces synced if possible
+def deletePost():
+    #this takes a LOT of the code from make_post(), so don't forget to keep the code pieces synced if possible  
+    mS = os.environ['why']
+    if request.form["pswd"] != mS:
+        return "Bad Mod Password"
+    delID = request.form["delID"]
     with open("takenStuff.json", 'r') as fil:
         contents = fil.read()
         takenPagesJSON = json.loads(contents)
-        takenPages = takenPagesJSON["takenPages"]
+        takenPages = takenPagesJSON["id-del"]
     if delID in takenPages:
         #fix takenPages, because search for a random post is reliant on it
         takenPages.remove(delID)
@@ -154,7 +168,7 @@ def deletePost(delID):
         with open("takenStuff.json", 'w') as fil:
             json.dump(takenPagesJSON, fil, sort_keys=True, indent=4)
         #now actually delete the file from replit
-        #i know this code sucks *** but honestly idc bc this should filter any stray spaces right? idk
+        #i know this code sucks but honestly idc bc this should filter any stray spaces right? idk
         os.remove(f"pages/posts/{str(int(delID))}")
     else:
         return f"ID {delID} NOT FOUND"
