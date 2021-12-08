@@ -125,3 +125,22 @@ def moderate():
     else:
         print("how did we get here")
         return readFile("404.html")
+
+@app.route("/moderation/mod-del", methods = ["POST"])
+def deletePost(delID):
+    #this takes a LOT of the code from make_post(), so don't forget to keep the code pieces synced if possible
+    with open("takenStuff.json", 'r') as fil:
+        contents = fil.read()
+        takenPagesJSON = json.loads(contents)
+        takenPages = takenPagesJSON["takenPages"]
+    if delID in takenPages:
+        #fix takenPages, because search for a random post is reliant on it
+        takenPages.remove(delID)
+        takenPagesJSON["takenPages"] = takenPages
+        with open("takenStuff.json", 'w') as fil:
+            json.dump(takenPagesJSON, fil, sort_keys=True, indent=4)
+        #now actually delete the file from replit
+        #i know this code sucks *** but honestly idc bc this should filter any stray spaces right? idk
+        os.remove(f"pages/posts/{str(int(delID))}")
+    else:
+        return f"ID {delID} NOT FOUND"
