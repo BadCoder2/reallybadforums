@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, send_from_directory
 from markupsafe import escape
 import random, time, json, os, requests
 #yes yes i know, importing too much. i wonder if i could do something like:
@@ -60,7 +60,9 @@ def SQuest2():
 def SQuest3():
     return readFile("nothingtoseehere.html")
 
-
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('favicon.ico')
 @app.route("/make_forum_post", methods = ["POST"])
 def make_post():
     cRslt = checkCaptcha(request.form['h-captcha-response'])
