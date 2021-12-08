@@ -24,6 +24,15 @@ def checkCaptcha(res):
         print(xJson["error-codes"])
     print("CAPTCHA RESULT: " + result)
     return result
+starter = """<head>
+    <link rel="apple-touch-icon" sizes="180x180" href="/i/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/i/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/i/favicon-16x16.png">
+    <link rel="manifest" href="/i/site.webmanifest">
+    <link rel="mask-icon" href="/i/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+</head><body>"""
 
 @app.route("/")
 def home():
@@ -69,6 +78,7 @@ def make_post():
     while True:
         num = str(random.randint(1124,391413))
         if int(num) in takenPages:
+            print("woah! we got a dupe in the randint!! das cool")
             continue
         else:
             break
@@ -78,10 +88,12 @@ def make_post():
     with open("takenStuff.json", 'w') as fil:
         json.dump(takenPagesJSON, fil, sort_keys=True, indent=4)
     newInpt = fixInput(inpt)
+    global starter
     with open(postLocate, "w") as post:
-        post.write("<body>"+newInpt+"</body>")
+        post.write(starter+newInpt+"</body>")
     output = str(newInpt) + "<br><b>ID: " + num + "</b>"
     return output
+
 
 @app.route("/view_post", methods = ["POST"])
 def view_post():
