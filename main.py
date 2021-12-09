@@ -67,7 +67,7 @@ def make_post():
         takenPagesJSON = json.loads(contents)
         takenPages = takenPagesJSON["takenPages"]
     curTime = str(time.time())
-    random.seed(curTime)
+    random.seed(str(curTime))
     while True:
         num = str(random.randint(1124,391413))
         if int(num) in takenPages:
