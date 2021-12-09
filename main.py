@@ -24,15 +24,6 @@ def checkCaptcha(res):
         print(xJson["error-codes"])
     print("CAPTCHA RESULT: " + result)
     return result
-starter = """<head>
-    <link rel="apple-touch-icon" sizes="180x180" href="/i/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/i/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/i/favicon-16x16.png">
-    <link rel="manifest" href="/i/site.webmanifest">
-    <link rel="mask-icon" href="/i/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
-</head><body>"""
 
 @app.route("/")
 def home():
@@ -90,9 +81,8 @@ def make_post():
     with open("takenStuff.json", 'w') as fil:
         json.dump(takenPagesJSON, fil, sort_keys=True, indent=4)
     newInpt = fixInput(inpt)
-    global starter
     with open(postLocate, "w") as post:
-        post.write(starter+newInpt+"</body>")
+        post.write("<body>"+newInpt+"</body>")
     output = str(newInpt) + "<br><b>ID: " + num + "</b>"
     return output
 
@@ -152,15 +142,15 @@ def moderate():
         return readFile("404.html")
 @app.route("/moderation/mod-del", methods = ["POST"])
 def deletePost():
-    #this takes a LOT of the code from make_post(), so don't forget to keep the code pieces synced if possible  
+    #this takes a LOT of the code from make_post(), so don't forget to keep the code pieces synced if possible 
     mS = os.environ['why']
     if request.form["pswd"] != mS:
         return "Bad Mod Password"
     delID = request.form["delID"]
+    print("Deleting ID "+delID)
     with open("takenStuff.json", 'r') as fil:
-        contents = fil.read()
-        takenPagesJSON = json.loads(contents)
-        takenPages = takenPagesJSON["id-del"]
+        takenPagesJSON = json.load(fil)
+        takenPages = takenPagesJSON["takenPages"]
     if delID in takenPages:
         #fix takenPages, because search for a random post is reliant on it
         takenPages.remove(delID)
@@ -169,6 +159,11 @@ def deletePost():
             json.dump(takenPagesJSON, fil, sort_keys=True, indent=4)
         #now actually delete the file from replit
         #i know this code sucks but honestly idc bc this should filter any stray spaces right? idk
-        os.remove(f"pages/posts/{str(int(delID))}")
+        os.remove(f"pages/posts/{str(delID)}.html")
+        print("Deleted successfully.")
+        return f"Successfully deleted post ID {delID}."
     else:
         return f"ID {delID} NOT FOUND"
+
+if __name__ == "__main__":
+    app.run(ssl_context='adhoc')
