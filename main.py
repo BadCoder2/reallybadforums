@@ -1,6 +1,6 @@
 from flask import Flask, request, redirect, make_response
 from markupsafe import escape
-import random, time, json, os, requests
+import random, json, os, requests, datetime
 #yes yes i know, importing too much. i wonder if i could do something like:
 #from os import environ
 #possibly in the future
@@ -66,8 +66,6 @@ def make_post():
         contents = fil.read()
         takenPagesJSON = json.loads(contents)
         takenPages = takenPagesJSON["takenPages"]
-    curTime = str(time.time())
-    random.seed(str(curTime))
     while True:
         num = str(random.randint(1124,391413))
         if int(num) in takenPages:
@@ -97,7 +95,6 @@ def view_post():
 
 @app.route("/view_rand_post", methods = ["POST"])
 def view_rand_post():
-    random.seed = time.time()
     with open("takenStuff.json", 'r') as fil:
         contents = fil.read()
         takenPagesJSON = json.loads(contents)
@@ -122,7 +119,9 @@ def setLC():
     cTSn = request.form["cookieName"]
     cTSc = request.form["cookieContent"]
     resp = make_response("Cookie Set")
-    resp.set_cookie(cTSn, cTSc)
+    expire_date = datetime.datetime.now()
+    expire_date = expire_date + datetime.timedelta(days=180)
+    resp.set_cookie(cTSn, cTSc, expire_date)
     return resp
 @app.route("/moderation")
 def moderate():
