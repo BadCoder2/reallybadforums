@@ -65,7 +65,8 @@ def make_post():
     with open("takenStuff.json", 'r') as fil:
         contents = fil.read()
         takenPagesJSON = json.loads(contents)
-        takenPages = takenPagesJSON["takenPages"]
+    takenPages = takenPagesJSON["takenPages"]
+    lastPages = takenPagesJSON["lastPages"]
     while True:
         num = str(random.randint(1124,391413))
         if int(num) in takenPages:
@@ -73,11 +74,14 @@ def make_post():
             continue
         else:
             break
+    lastPages.pop(0)
+    lastPages.append(num)
     takenPages.append(num)
     takenPagesJSON["takenPages"] = takenPages
-    postLocate = ("pages/posts/" + num + ".html")
+    takenPagesJSON["lastPages"] = lastPages
     with open("takenStuff.json", 'w') as fil:
         json.dump(takenPagesJSON, fil, sort_keys=True, indent=4)
+    postLocate = ("pages/posts/" + num + ".html")
     newInpt = fixInput(inpt)
     with open(postLocate, "w") as post:
         post.write("<body>"+newInpt+"</body>")
@@ -135,7 +139,10 @@ def moderate():
         print("\033[93mWARN: ATTEMPTED MOD ACCESS WITH COOKIE "+modToken+"\033[0m")
         return "Incorrect cookie."
     elif modToken == os.environ['MOD_SECRET']:
-        return readFile("mods.html")
+        file = readFile("mods.html")
+        global lastPosts
+        finalFile = file.replace("Replace1", lastPosts[0]).replace("Replace2", lastPosts[1]).replace("Replace3", lastPosts[2]).replace("Replace4", lastPosts[3]).replace("Replace5", lastPosts[4])#i just committed a sin
+        return finalFile
     else:
         print("how did we get here")
         return readFile("404.html")
@@ -157,7 +164,6 @@ def deletePost():
         with open("takenStuff.json", 'w') as fil:
             json.dump(takenPagesJSON, fil, sort_keys=True, indent=4)
         #now actually delete the file from replit
-        #i know this code sucks but honestly idc bc this should filter any stray spaces right? idk
         os.remove(f"pages/posts/{str(delID)}.html")
         print("Deleted successfully.")
         return f"Successfully deleted post ID {delID}."
