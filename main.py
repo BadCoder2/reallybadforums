@@ -1,9 +1,6 @@
 from flask import Flask, request, redirect, make_response
 from markupsafe import escape
 import random, json, os, requests, datetime
-#yes yes i know, importing too much. i wonder if i could do something like:
-#from os import environ
-#possibly in the future
 
 app = Flask(__name__)
 
@@ -65,7 +62,8 @@ def make_post():
     with open("takenStuff.json", 'r') as fil:
         contents = fil.read()
         takenPagesJSON = json.loads(contents)
-        takenPages = takenPagesJSON["takenPages"]
+    takenPages = takenPagesJSON["takenPages"]
+    lastPages = takenPagesJSON["lastPages"]
     while True:
         num = str(random.randint(1124,391413))
         if int(num) in takenPages:
@@ -73,11 +71,14 @@ def make_post():
             continue
         else:
             break
+    lastPages.pop(0)
+    lastPages.append(num)
     takenPages.append(num)
     takenPagesJSON["takenPages"] = takenPages
-    postLocate = ("pages/posts/" + num + ".html")
+    takenPagesJSON["lastPages"] = lastPages
     with open("takenStuff.json", 'w') as fil:
         json.dump(takenPagesJSON, fil, sort_keys=True, indent=4)
+    postLocate = ("pages/posts/" + num + ".html")
     newInpt = fixInput(inpt)
     with open(postLocate, "w") as post:
         post.write("<body>"+newInpt+"</body>")
@@ -119,9 +120,7 @@ def setLC():
     cTSn = request.form["cookieName"]
     cTSc = request.form["cookieContent"]
     resp = make_response("Cookie Set")
-    expire_date = datetime.datetime.now()
-    expire_date = expire_date + datetime.timedelta(days=180)
-    resp.set_cookie(cTSn, cTSc, expire_date)
+    resp.set_cookie(str(cTSn), value=str(cTSc), max_age=(180*24*60*60))
     return resp
 @app.route("/moderation")
 def moderate():
@@ -135,7 +134,17 @@ def moderate():
         print("\033[93mWARN: ATTEMPTED MOD ACCESS WITH COOKIE "+modToken+"\033[0m")
         return "Incorrect cookie."
     elif modToken == os.environ['MOD_SECRET']:
-        return readFile("mods.html")
+        file = readFile("mods.html")
+        with open("takenStuff.json", 'r') as fil:
+            lastPagesJSON = json.load(fil)
+            lastPages = lastPagesJSON["lastPages"]
+        file1 = file.replace("Replace1", f'<a href="/pages/posts/{lastPages[0]}">{lastPages[0]}</a>')
+        file2 = file1.replace("Replace1", f'<a href="/pages/posts/{lastPages[1]}">{lastPages[1]}</a>')
+        file3 = file2.replace("Replace1", f'<a href="/pages/posts/{lastPages[2]}">{lastPages[2]}</a>')
+        file4 = file3.replace("Replace1", f'<a href="/pages/posts/{lastPages[3]}">{lastPages[3]}</a>')
+        finalFile = file4.replace("Replace1", f'<a href="/pages/posts/{lastPages[4]}">{lastPages[4]}</a>')
+        #i just committed a sin
+        return finalFile
     else:
         print("how did we get here")
         return readFile("404.html")
@@ -157,7 +166,6 @@ def deletePost():
         with open("takenStuff.json", 'w') as fil:
             json.dump(takenPagesJSON, fil, sort_keys=True, indent=4)
         #now actually delete the file from replit
-        #i know this code sucks but honestly idc bc this should filter any stray spaces right? idk
         os.remove(f"pages/posts/{str(delID)}.html")
         print("Deleted successfully.")
         return f"Successfully deleted post ID {delID}."
