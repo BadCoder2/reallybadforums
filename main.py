@@ -1,6 +1,6 @@
 from flask import Flask, request, redirect, make_response
 from markupsafe import escape
-import random, json, os, requests, datetime
+import random, json, os, requests
 
 app = Flask(__name__)
 
