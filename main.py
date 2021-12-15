@@ -1,9 +1,6 @@
 from flask import Flask, request, redirect, make_response
 from markupsafe import escape
 import random, json, os, requests, datetime
-#yes yes i know, importing too much. i wonder if i could do something like:
-#from os import environ
-#possibly in the future
 
 app = Flask(__name__)
 
@@ -123,9 +120,7 @@ def setLC():
     cTSn = request.form["cookieName"]
     cTSc = request.form["cookieContent"]
     resp = make_response("Cookie Set")
-    expire_date = datetime.datetime.now()
-    expire_date = expire_date + datetime.timedelta(days=180)
-    resp.set_cookie(cTSn, cTSc, expire_date)
+    resp.set_cookie(str(cTSn), value=str(cTSc), max_age=(180*24*60*60))
     return resp
 @app.route("/moderation")
 def moderate():
@@ -140,8 +135,15 @@ def moderate():
         return "Incorrect cookie."
     elif modToken == os.environ['MOD_SECRET']:
         file = readFile("mods.html")
-        global lastPosts
-        finalFile = file.replace("Replace1", lastPosts[0]).replace("Replace2", lastPosts[1]).replace("Replace3", lastPosts[2]).replace("Replace4", lastPosts[3]).replace("Replace5", lastPosts[4])#i just committed a sin
+        with open("takenStuff.json", 'r') as fil:
+            lastPagesJSON = json.load(fil)
+            lastPages = lastPagesJSON["lastPages"]
+        file1 = file.replace("Replace1", f'<a href="/pages/posts/{lastPages[0]}">{lastPages[0]}</a>')
+        file2 = file1.replace("Replace1", f'<a href="/pages/posts/{lastPages[0]}">{lastPages[0]}</a>')
+        file3 = file2.replace("Replace1", f'<a href="/pages/posts/{lastPages[0]}">{lastPages[0]}</a>')
+        file4 = file3.replace("Replace1", f'<a href="/pages/posts/{lastPages[0]}">{lastPages[0]}</a>')
+        finalFile = file4.replace("Replace1", f'<a href="/pages/posts/{lastPages[0]}">{lastPages[0]}</a>')
+        #i just committed a sin
         return finalFile
     else:
         print("how did we get here")
