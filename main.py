@@ -138,11 +138,11 @@ def moderate():
         with open("takenStuff.json", 'r') as fil:
             lastPagesJSON = json.load(fil)
             lastPages = lastPagesJSON["lastPages"]
-        file1 = file.replace("Replace1", f'<a href="/pages/posts/{lastPages[0]}">{lastPages[0]}</a>')
-        file2 = file1.replace("Replace1", f'<a href="/pages/posts/{lastPages[1]}">{lastPages[1]}</a>')
-        file3 = file2.replace("Replace1", f'<a href="/pages/posts/{lastPages[2]}">{lastPages[2]}</a>')
-        file4 = file3.replace("Replace1", f'<a href="/pages/posts/{lastPages[3]}">{lastPages[3]}</a>')
-        finalFile = file4.replace("Replace1", f'<a href="/pages/posts/{lastPages[4]}">{lastPages[4]}</a>')
+        file1 = file.replace("Replace1", f'<a href="/forum/{lastPages[0]}">{lastPages[0]}</a>')
+        file2 = file1.replace("Replace2", f'<a href="/forum/{lastPages[1]}">{lastPages[1]}</a>')
+        file3 = file2.replace("Replace3", f'<a href="/forum/{lastPages[2]}">{lastPages[2]}</a>')
+        file4 = file3.replace("Replace4", f'<a href="/forum/{lastPages[3]}">{lastPages[3]}</a>')
+        finalFile = file4.replace("Replace5", f'<a href="/forum/{lastPages[4]}">{lastPages[4]}</a>')
         #i just committed a sin
         return finalFile
     else:
